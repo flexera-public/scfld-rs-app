@@ -105,7 +105,7 @@ gulp.task('images', () => {
 });
 
 gulp.task('templates', () => {
-  return gulp.src(['src/**/*.html'])
+  return gulp.src(['src/**/*.html', '!src/index.html'])
     .pipe(htmlhint('.htmlhintrc'))
     .pipe(watching ? htmlhint.reporter() : htmlhint.failReporter())
     .pipe(htmlmin(htmlMinOptions))
