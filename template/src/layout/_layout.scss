@@ -1,0 +1,72 @@
+html, body {
+  width: 100%;
+  height: 100%;
+}
+
+body > ui-view {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: hidden;
+
+  > [layout-fill] {
+    height: 100%;
+  }
+}
+
+.layout-header {
+  height: 50px;
+  background: $blue;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+
+  span {
+    margin-left: 10px;
+  }
+}
+
+.layout-sidebar {
+  background: $left-background-dark;
+  color: #fff;
+  padding: 30px;
+
+  li {
+    border-left: solid 3px transparent;
+  }
+
+  li.active {
+    border-left-color: #fff;
+  }
+
+  a, a:visited {
+    color: #fff;
+    padding: 0 20px;
+    text-decoration: none;
+  }
+}
+
+.layout-content {
+  overflow-y: auto;
+}
+
+.logo {
+  svg {
+    height: 17px;
+    width: auto;
+  }
+}
+
+.content-box {
+  padding: 20px;
+}
+
+rs-chart {
+  display: block;
+  position: relative;
+}
+
+[layout-margin] > * {
+  margin: 8px;
+}

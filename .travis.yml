@@ -1,0 +1,13 @@
+language: node_js
+node_js:
+- '5.12.0'
+before_deploy:
+  - npm --no-git-tag-version version $TRAVIS_TAG
+deploy:
+  skip_cleanup: true
+  provider: npm
+  email: christian.teijon+rightscaleci@rightscale.com
+  api_key: "$NPM_TOKEN"
+  on:
+    tags: true
+    all_branches: true

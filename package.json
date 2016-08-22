@@ -1,0 +1,23 @@
+{
+  "name": "@rightscale/scfld-rs-app",
+  "version": "0.0.0",
+  "description": "A scfld project template for RightScale UI applications",
+  "author": "RightScale",
+  "license": "MIT",
+  "scripts": {
+    "test": "echo \"No tests needed\" && exit 0"
+  },
+  "dependencies": {
+    "inquirer": "^0.10.0",
+    "lodash": "^3.10.1",
+    "q": "^1.4.1"
+  },
+  "bugs": {
+    "url": "https://github.com/rightscale/scfld-rs-app/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rightscale/scfld-rs-app"
+  },
+  "homepage": "https://github.com/rightscale/scfld-rs-app"
+}

@@ -1,0 +1,19 @@
+<div layout="column" layout-fill>
+  <div class="layout-header">
+    <div class="logo" ng-include="'img/main-logo.svg'"></div>
+    <span><%= name %></span>
+  </div>
+  <div flex layout>
+    <div class="layout-sidebar">
+      <ul>
+        <li ng-repeat="state in $ctrl.states" ui-sref-active="active">
+          <a ui-sref="{{state.name}}">
+          {{:: state.data.label }}
+          </a>
+        </li>
+      </ul>
+    </div>
+    <div flex ui-view class="layout-content">
+    </div>
+  </div>
+</div>
