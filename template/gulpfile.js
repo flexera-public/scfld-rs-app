@@ -1,23 +1,13 @@
 var gulp = require('gulp');
-var htmlhint = require('gulp-htmlhint');
-var htmlmin = require('gulp-htmlmin');
-var svgmin = require('gulp-svgmin');
 var templatecache = require('gulp-angular-templatecache');
 var watch = require('gulp-watch');
-var sass = require('gulp-sass');
 var sourcemaps = require('gulp-sourcemaps');
 var inject = require('gulp-inject');
 
 var karma = require('karma');
 
-var rollup = require('rollup');
-var babel = require('rollup-plugin-babel');
-var typescript = require('rollup-plugin-typescript');
-var commonjs = require('rollup-plugin-commonjs');
-var nodeResolve = require('rollup-plugin-node-resolve');
-var uglify = require('rollup-plugin-uglify');
-
 var _ = require('lodash');
+var fs = require('fs');
 
 var config = require('./config.json');
 
@@ -25,11 +15,11 @@ var localConfig = {};
 try {
   localConfig = JSON.parse(fs.readFileSync('config.local.json') || '');
 }
-catch (e) {}
+catch (e) { }
+
 localConfig = _.defaults(localConfig, {
   uglify: true
 })
-
 // set to true when the default task is running and we're watching
 // for file changes. This is used to prevent errors from failing the
 // build and exiting the process.
@@ -48,6 +38,13 @@ var htmlMinOptions = {
 
 // Compiles and bundles TypeScript to JavaScript
 function compile(source, destination) {
+  var rollup = require('rollup');
+  var babel = require('rollup-plugin-babel');
+  var typescript = require('rollup-plugin-typescript');
+  var commonjs = require('rollup-plugin-commonjs');
+  var nodeResolve = require('rollup-plugin-node-resolve');
+  var uglify = require('rollup-plugin-uglify');
+
   var plugins = [
     typescript({
       target: 'ES6',
@@ -89,45 +86,74 @@ function compile(source, destination) {
   })
 }
 
+function images(source, destination, moduleName) {
+  var svgmin = require('gulp-svgmin');
+
+  return gulp.src(source)
+    .pipe(svgmin())
+    .pipe(templatecache({
+      filename: 'images.js',
+      module: moduleName
+    }))
+    .pipe(gulp.dest(destination));
+}
+
+function templates(source, destination, moduleName) {
+  var htmlhint = require('gulp-htmlhint');
+  var htmlmin = require('gulp-htmlmin');
+
+  return gulp.src(source)
+    .pipe(htmlhint('.htmlhintrc'))
+    .pipe(watching ? htmlhint.reporter() : htmlhint.failReporter())
+    .pipe(htmlmin(htmlMinOptions))
+    .pipe(templatecache({ module: moduleName }))
+    .pipe(gulp.dest(destination));
+}
+
+function styles(entryPoint, source, destination) {
+  var sass = require('gulp-sass');
+  var postcss = require('gulp-postcss');
+  var atImport = require("postcss-import");
+  var autoprefixer = require('autoprefixer');
+  var mqpacker = require('css-mqpacker');
+  var csswring = require('csswring');
+
+  return gulp.src(entryPoint)
+    .pipe(sourcemaps.init())
+    .pipe(inject(gulp.src(source), {
+      starttag: '/* inject:imports */',
+      endtag: '/* endinject */',
+      transform: filepath => '@import ".' + filepath + '";'
+    }))
+    .pipe(sass())
+    .pipe(postcss([
+      atImport(),
+      autoprefixer({ browsers: ['last 2 versions'] }),
+      mqpacker({ sort: true }),
+      csswring({ removeAllComments: true })
+    ]))
+    .pipe(sourcemaps.write())
+    .pipe(gulp.dest(destination))
+}
 
 /**********************************************************************
  * Tasks to build the app
  */
 
 gulp.task('images', () => {
-  return gulp.src('src/**/*.svg')
-    .pipe(svgmin())
-    .pipe(templatecache({
-      filename: 'images.js',
-      module: config.moduleName
-    }))
-    .pipe(gulp.dest('.tmp/'));
+  return images('src/**/*.svg', '.tmp/', config.moduleName);
 });
 
 gulp.task('templates', () => {
-  return gulp.src(['src/**/*.html', '!src/index.html'])
-    .pipe(htmlhint('.htmlhintrc'))
-    .pipe(watching ? htmlhint.reporter() : htmlhint.failReporter())
-    .pipe(htmlmin(htmlMinOptions))
-    .pipe(templatecache({ module: config.moduleName }))
-    .pipe(gulp.dest('.tmp/'));
+  return templates(['src/**/*.html', '!src/*.html'], '.tmp/', config.moduleName);
 });
 
 gulp.task('styles', () => {
-  return gulp.src('src/main.scss')
-    .pipe(sourcemaps.init())
-    .pipe(inject(gulp.src('src/**/_*.scss'), {
-      starttag: '/* inject:imports */',
-      endtag: '/* endinject */',
-      transform: filepath => '@import ".' + filepath + '";'
-    }))
-    .pipe(sass())
-    .pipe(sourcemaps.write())
-    .pipe(gulp.dest('./build/css'))
+  return styles('src/main.scss', 'src/**/_*.scss', './build/css');
 })
 
 gulp.task('compile', () => {
-  return compile('src/index.ts', './build/js/main.js')
+  return compile('src/index.ts', './build/js/main.js');
 })
 
 gulp.task('build', ['images', 'templates', 'styles', 'compile'], () => {
@@ -140,17 +166,25 @@ gulp.task('build', ['images', 'templates', 'styles', 'compile'], () => {
  * Running the app
  */
 
-gulp.task('default', ['build'], () => {
-  var browserSync = require('browser-sync');
+var bs = require('browser-sync').create();
+
+gulp.task('reload', ['build'], () => {
+  var cache = require('gulp-cached');
+  var ignore = require('gulp-ignore');
+
+  return gulp.src(['./build/**/*'])
+    .pipe(cache()) // ignore files that haven't changed
+    .pipe(ignore(file => !file.contents)) // ignore directories
+    .pipe(bs.stream()); // reload the page or inject CSS
+})
+
+
+gulp.task('default', ['reload'], () => {
   var modRewrite = require('connect-modrewrite');
 
-  var bs = browserSync.create();
-
   watch(['src/**/*'], () => {
-    gulp.start('build');
+    gulp.start('reload');
   });
-
-  bs.watch('build/**/*').on('change', bs.reload);
 
   bs.init({
     open: false,
@@ -160,7 +194,7 @@ gulp.task('default', ['build'], () => {
       baseDir: ['./build'],
       middleware: [
         modRewrite([
-          '!\\.\\w+$ /index.html [L]' // this is for angular's HTML5 mode
+          '!\\.\\w+(\\?.*)?$ /index.html [L]' // this is for angular's HTML5 mode
         ])
       ]
     }
