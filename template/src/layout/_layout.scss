@@ -55,10 +55,6 @@ body > ui-view {
     padding: 6px 20px;
     color: #fff;
     text-decoration: none;
-    transition: all 100ms ease-in-out;
-    &:hover {
-      background-color: rgba(black, .10);
-    }
   }
 }
 
