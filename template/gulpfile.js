@@ -178,13 +178,18 @@ gulp.task('reload', ['build'], () => {
     .pipe(bs.stream()); // reload the page or inject CSS
 })
 
-
 gulp.task('default', ['reload'], () => {
   var modRewrite = require('connect-modrewrite');
 
-  watch(['src/**/*'], () => {
-    gulp.start('reload');
-  });
+  watch(['src/', 'node_modules/@rightscale/', '!**/.*', '!node_modules/@rightscale/**/node_modules'],
+    {
+      followSymlinks: true,
+      verbose: true,
+      read: false
+    },
+    () => {
+      gulp.start('reload');
+    });
 
   bs.init({
     open: false,
@@ -216,6 +221,19 @@ gulp.task('clean', cb => {
  * Tasks to build and run the tests
  */
 
+gulp.task('lint', () => {
+  var tslint = require('gulp-tslint');
+
+  return gulp.src(['src/**/*.ts', 'demo/**/*.ts'])
+    .pipe(tslint({
+      formattersDirectory: 'node_modules/custom-tslint-formatters/formatters',
+      formatter: 'grouped'
+    }))
+    .pipe(tslint.report({
+      summarizeFailureOutput: true
+    }));
+});
+
 gulp.task('spec:inject', () => {
   return gulp.src('src/spec.ts')
     .pipe(inject(gulp.src('src/**/*.spec.ts'), {
@@ -230,7 +248,7 @@ gulp.task('spec:compile', ['spec:inject'], () => {
   return compile('.tmp/spec.ts', '.tmp/spec.js');
 })
 
-gulp.task('spec', ['build', 'spec:compile'], (cb) => {
+gulp.task('spec', ['lint', 'build', 'spec:compile'], (cb) => {
   var path = require('path');
   new karma.Server(
     { configFile: path.resolve('karma.conf.js') },

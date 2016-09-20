@@ -1,4 +1,4 @@
-import ngModule from '@rightscale/ui-angular-decorators';
+import Module from '@rightscale/ui-angular-decorators';
 
-let app = new ngModule('<%= moduleName %>', ['ui.router']);
+let app = new Module('<%= moduleName %>', ['ui.router']);
 export default app;

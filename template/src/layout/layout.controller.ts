@@ -1,7 +1,6 @@
 import app from '../app';
 
-@app.controller
-@app.inject(['$state'])
+@app.inject('$state').controller
 export class LayoutController {
 
   states: ng.ui.IState[];
