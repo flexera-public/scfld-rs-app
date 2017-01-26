@@ -29,7 +29,7 @@ You can run the tests in PhantomJS:
 
 Or you can run them in Chrome if you wish to debug them:
 
-    gulp <%=moduleName %>spec:chrome:debug
+    gulp <%=moduleName %>:spec:chrome:debug
 
 ## Contributors
 
