@@ -17,7 +17,7 @@
     "@types/jasmine": "^2.5.40"
   },
   "devDependencies": {
-    "@rightscale/ui-build-tools": "0.0.0",
+    "@rightscale/ui-build-tools": "0.0.2",
     "angular-mocks": "^1.5.8",
     "gulp": "^3.9.1"
   },
