@@ -16,7 +16,7 @@ Install dependencies with
 
 You can run the app locally simply by running Gulp:
 
-    gulp
+    gulp <%=moduleName %>
 
 This will build the app and run it from a local server. It will also watch for any changes and
 automatically refresh the page.
@@ -25,11 +25,11 @@ automatically refresh the page.
 
 You can run the tests in PhantomJS:
 
-    gulp spec
+    gulp <%=moduleName %>:spec
 
 Or you can run them in Chrome if you wish to debug them:
 
-    gulp spec:debug
+    gulp <%=moduleName %>spec:chrome:debug
 
 ## Contributors
 

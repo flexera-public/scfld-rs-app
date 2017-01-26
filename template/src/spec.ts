@@ -1,3 +1,4 @@
+import 'angular';
 import 'angular-mocks/angular-mocks';
 
 /* inject:specs */
