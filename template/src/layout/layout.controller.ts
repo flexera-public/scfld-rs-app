@@ -1,3 +1,4 @@
+import ng from 'angular';
 import app from '../app';
 
 @app.inject('$state').controller

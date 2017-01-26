@@ -1,3 +1,5 @@
+import ng from 'angular';
+import '../';
 import { LayoutController } from './layout.controller';
 
 describe(LayoutController.name, () => {
@@ -5,7 +7,7 @@ describe(LayoutController.name, () => {
   let controllerService: ng.IControllerService;
   let controller: LayoutController;
 
-  beforeEach(angular.mock.module('<%= moduleName %>'));
+  beforeEach(ng.mock.module('<%= moduleName %>'));
 
   beforeEach(inject(['$controller', ($controller: ng.IControllerService) => {
     controllerService = $controller;

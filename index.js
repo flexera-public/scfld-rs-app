@@ -1,5 +1,5 @@
 module.exports = {
-  init: function() {
+  init: function () {
     var path = require('path');
     var q = require('q').defer();
     var inquirer = require('inquirer');
@@ -34,7 +34,7 @@ module.exports = {
 
     console.log('\n  A scfld project template for RightScale UI applications\n');
 
-    inquirer.prompt(questions, function(answers) {
+    inquirer.prompt(questions, function (answers) {
       q.resolve({
         options: {
           data: answers
@@ -42,10 +42,9 @@ module.exports = {
         sources: [
           path.join(__dirname, 'template')
         ],
-        globalDeps: ['gulp', 'typings'],
+        globalDeps: ['gulp'],
         postInit: [
-          'npm i',
-          'typings install'          
+          'npm i'
         ]
       })
     });
